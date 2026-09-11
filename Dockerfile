@@ -15,7 +15,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 # Copy application source files
-COPY tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts tailwind.config.js postcss.config.js index.html ./
+COPY tsconfig.json vite.config.ts tailwind.config.js postcss.config.js index.html ./
 COPY public/ ./public/
 COPY src/ ./src/
 
