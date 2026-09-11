@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent-color: #00ff66;
+  --accent-rgb: 0, 255, 102;
+  --text-primary: #e2f7ed;
+  --text-secondary: #7ba38e;
+  --glass-opacity: 0.72;
+  --glass-blur: 16px;
+  --border-intensity: 0.18;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(var(--accent-rgb), 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--accent-rgb), 0.6);
+}
+
+/* Base Body */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #020503;
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Matte Frosted Glass Card */
+.glass-panel {
+  background-color: rgba(6, 14, 10, var(--glass-opacity));
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(var(--accent-rgb), var(--border-intensity));
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+.glass-panel-subtle {
+  background-color: rgba(6, 14, 10, calc(var(--glass-opacity) * 0.8));
+  backdrop-filter: blur(calc(var(--glass-blur) * 0.75));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 0.75));
+  border: 1px solid rgba(var(--accent-rgb), calc(var(--border-intensity) * 0.75));
+}
+
+/* Cyber Matrix Subtle Grid */
+.cyber-grid-overlay {
+  background-size: 36px 36px;
+  background-image: 
+    linear-gradient(to right, rgba(var(--accent-rgb), 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--accent-rgb), 0.035) 1px, transparent 1px);
+}
+
+/* High-contrast focus state for accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}

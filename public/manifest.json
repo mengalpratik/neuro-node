@@ -1,0 +1,16 @@
+{
+  "name": "NEURO//NODE",
+  "short_name": "NEURO//NODE",
+  "description": "NEURO//NODE • Local-First Personal Home Interface and Command Center. Built with love by Mengal Pratik (Neuro)",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030705",
+  "theme_color": "#00ff66",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300ff66' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='4 17 10 11 4 5'></polyline><line x1='12' y1='19' x2='20' y2='19'></line></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
