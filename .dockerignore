@@ -1,0 +1,41 @@
+# Node modules and build output
+node_modules/
+dist/
+build/
+
+# Test and audit artifacts
+coverage/
+test-results/
+playwright-report/
+audit_screenshots/
+*.png
+*.jpg
+*.jpeg
+
+# Version control
+.git/
+.github/
+
+# Environment files and local overrides
+.env
+.env.local
+.env.*.local
+*.env
+
+# Runtime persistent data
+server/data/
+*.tmp
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor and IDE configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

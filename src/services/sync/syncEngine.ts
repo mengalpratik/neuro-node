@@ -92,7 +92,13 @@ export class SyncEngine {
   // ==================== HTTP REST API ====================
 
   private resolveHttpUrl(serverUrl: string, endpoint: string): string {
-    const base = serverUrl.trim() || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8787');
+    let base = serverUrl.trim();
+    if (!base) {
+      base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8787';
+    } else if (!/^https?:\/\//i.test(base)) {
+      const defaultProtocol = typeof window !== 'undefined' ? window.location.protocol : 'http:';
+      base = `${defaultProtocol}//${base}`;
+    }
     const cleanBase = base.replace(/\/+$/, '');
     return `${cleanBase}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
   }
@@ -334,11 +340,22 @@ export class SyncEngine {
 
     try {
       let base = serverUrl.trim();
-      if (!base) base = window.location.origin;
+      if (!base) {
+        base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8787';
+      } else if (!/^https?:\/\//i.test(base) && !/^wss?:\/\//i.test(base)) {
+        const defaultProtocol = typeof window !== 'undefined' ? window.location.protocol : 'http:';
+        base = `${defaultProtocol}//${base}`;
+      }
 
-      const urlObj = new URL(base);
-      const wsProtocol = urlObj.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${wsProtocol}//${urlObj.host}/ws?deviceId=${encodeURIComponent(device.deviceId)}&token=${encodeURIComponent(authToken)}`;
+      let wsUrl: string;
+      if (base.startsWith('ws://') || base.startsWith('wss://')) {
+        const urlObj = new URL(base);
+        wsUrl = `${urlObj.protocol}//${urlObj.host}/ws?deviceId=${encodeURIComponent(device.deviceId)}&token=${encodeURIComponent(authToken)}`;
+      } else {
+        const urlObj = new URL(base);
+        const wsProtocol = urlObj.protocol === 'https:' ? 'wss:' : 'ws:';
+        wsUrl = `${wsProtocol}//${urlObj.host}/ws?deviceId=${encodeURIComponent(device.deviceId)}&token=${encodeURIComponent(authToken)}`;
+      }
 
       this.ws = new WebSocket(wsUrl);
 

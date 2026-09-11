@@ -7,11 +7,95 @@ import { WebSocketServer, WebSocket } from 'ws';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
+const STATIC_DIR = process.env.STATIC_DIR || path.join(__dirname, '../dist');
 const DB_FILE = path.join(DATA_DIR, 'sync_db.json');
 
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.mjs': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.map': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.webmanifest': 'application/manifest+json',
+  '.xml': 'application/xml',
+  '.txt': 'text/plain; charset=utf-8',
+};
+
+function serveStaticFile(req, res, pathname) {
+  if (!fs.existsSync(STATIC_DIR)) {
+    return false;
+  }
+
+  let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+  if (safePath === '/' || safePath === '') {
+    safePath = '/index.html';
+  }
+
+  let filePath = path.join(STATIC_DIR, safePath);
+  if (!filePath.startsWith(STATIC_DIR)) {
+    return false;
+  }
+
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
+    filePath = path.join(filePath, 'index.html');
+  }
+
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    const isImmutableAsset = safePath.startsWith('/assets/');
+
+    res.writeHead(200, {
+      'Content-Type': contentType,
+      'Cache-Control': isImmutableAsset ? 'public, max-age=31536000, immutable' : 'no-cache',
+      'X-Content-Type-Options': 'nosniff',
+    });
+
+    if (req.method === 'HEAD') {
+      res.end();
+      return true;
+    }
+
+    const stream = fs.createReadStream(filePath);
+    stream.pipe(res);
+    return true;
+  }
+
+  // SPA fallback for HTML navigation requests (requests without file extension or ending with .html)
+  if (!path.extname(pathname) || pathname.endsWith('.html')) {
+    const indexPath = path.join(STATIC_DIR, 'index.html');
+    if (fs.existsSync(indexPath) && fs.statSync(indexPath).isFile()) {
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'X-Content-Type-Options': 'nosniff',
+      });
+      if (req.method === 'HEAD') {
+        res.end();
+        return true;
+      }
+      fs.createReadStream(indexPath).pipe(res);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // In-Memory Database with atomic disk persistence
@@ -365,8 +449,8 @@ export function createServer() {
     }
 
     try {
-      // Health check
-      if (req.method === 'GET' && pathname === '/api/health') {
+      // Health check (standard /health and /api/health for Docker/orchestrators)
+      if (req.method === 'GET' && (pathname === '/health' || pathname === '/api/health')) {
         return sendJson(res, 200, {
           status: 'ok',
           time: Date.now(),
@@ -665,6 +749,17 @@ export function createServer() {
         return sendJson(res, 200, { success: true });
       }
 
+      // Unmatched API route: 404
+      if (pathname.startsWith('/api/')) {
+        return sendJson(res, 404, { error: `Endpoint not found: ${req.method} ${pathname}` });
+      }
+
+      // Serve static frontend assets for GET/HEAD
+      if (req.method === 'GET' || req.method === 'HEAD') {
+        const handled = serveStaticFile(req, res, pathname);
+        if (handled) return;
+      }
+
       // Fallthrough: 404
       return sendJson(res, 404, { error: `Endpoint not found: ${req.method} ${pathname}` });
     } catch (err) {
@@ -766,8 +861,34 @@ export function createServer() {
 // Start standalone server if executed directly
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 8787;
-  const { server } = createServer();
-  server.listen(PORT, '0.0.0.0', () => {
-    console.log(`[NEURO//NODE Sync Server] Listening on http://0.0.0.0:${PORT} (WebSocket: ws://0.0.0.0:${PORT}/ws)`);
+  const HOST = process.env.HOST || '0.0.0.0';
+  const { server, wss } = createServer();
+  
+  server.listen(PORT, HOST, () => {
+    console.log(`[NEURO//NODE Sync Server] Listening on http://${HOST}:${PORT} (WebSocket: ws://${HOST}:${PORT}/ws)`);
+    if (fs.existsSync(STATIC_DIR)) {
+      console.log(`[NEURO//NODE Sync Server] Serving static production files from: ${STATIC_DIR}`);
+    } else {
+      console.log(`[NEURO//NODE Sync Server] Running in API-only mode (STATIC_DIR not found: ${STATIC_DIR})`);
+    }
   });
+
+  const shutdown = () => {
+    console.log('\n[NEURO//NODE Sync Server] Signal received. Gracefully shutting down...');
+    wss.close(() => {
+      server.close(() => {
+        db.save();
+        console.log('[NEURO//NODE Sync Server] Closed HTTP & WebSocket server. State saved.');
+        process.exit(0);
+      });
+    });
+    setTimeout(() => {
+      console.error('[NEURO//NODE Sync Server] Forceful shutdown timeout exceeded.');
+      process.exit(1);
+    }, 5000);
+  };
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
 }
+

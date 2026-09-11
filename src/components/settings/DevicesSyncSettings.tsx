@@ -49,8 +49,9 @@ export const DevicesSyncSettings: React.FC<DevicesSyncSettingsProps> = ({
   const [copiedId, setCopiedId] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Server URL config
-  const [serverUrlInput, setServerUrlInput] = useState(sync.serverUrl || 'http://localhost:8787');
+  // Server URL config (defaults to current browser origin)
+  const defaultOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8787';
+  const [serverUrlInput, setServerUrlInput] = useState(sync.serverUrl || defaultOrigin);
   const [savedUrlMsg, setSavedUrlMsg] = useState(false);
 
   // Pairing Modal state
@@ -316,7 +317,7 @@ export const DevicesSyncSettings: React.FC<DevicesSyncSettingsProps> = ({
               type="text"
               value={serverUrlInput}
               onChange={e => setServerUrlInput(e.target.value)}
-              placeholder="http://localhost:8787"
+              placeholder={defaultOrigin}
               className="flex-1 px-3 py-1.5 text-xs font-mono rounded-lg bg-black/60 border border-gray-700 text-white placeholder-gray-600 focus:outline-none focus:ring-1 focus:ring-emerald-400"
             />
             <button

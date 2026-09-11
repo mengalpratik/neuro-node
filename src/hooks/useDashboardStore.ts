@@ -521,17 +521,19 @@ export function useDashboardStore() {
     const s = stateRef.current;
     let token = s.sync.authToken;
 
-    if (!token) {
+    if (!token || !s.sync.enabled) {
       const reg = await syncEngine.registerDevice(s.device, s.sync.serverUrl);
       token = reg.authToken;
       setState(prev => ({
         ...prev,
         sync: {
           ...prev.sync,
+          enabled: true,
           authToken: reg.authToken,
           syncGroupId: reg.syncGroupId || prev.sync.syncGroupId,
         },
       }));
+      syncEngine.connectWebSocket(s.device, token, s.sync.serverUrl);
     }
 
     return await syncEngine.generatePairCode(s.device, token, s.sync.serverUrl);
@@ -541,17 +543,19 @@ export function useDashboardStore() {
     const s = stateRef.current;
     let token = s.sync.authToken;
 
-    if (!token) {
+    if (!token || !s.sync.enabled) {
       const reg = await syncEngine.registerDevice(s.device, s.sync.serverUrl);
       token = reg.authToken;
       setState(prev => ({
         ...prev,
         sync: {
           ...prev.sync,
+          enabled: true,
           authToken: reg.authToken,
           syncGroupId: reg.syncGroupId || prev.sync.syncGroupId,
         },
       }));
+      syncEngine.connectWebSocket(s.device, token, s.sync.serverUrl);
     }
 
     return await syncEngine.requestPairing(s.device, token, s.sync.serverUrl, code);

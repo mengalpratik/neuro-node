@@ -1,0 +1,36 @@
+services:
+  neuro-node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: neuro-node:latest
+    container_name: neuro-node
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8787}:8787"
+    environment:
+      - NODE_ENV=production
+      - PORT=8787
+      - HOST=0.0.0.0
+      - DATA_DIR=/app/server/data
+      - STATIC_DIR=/app/dist
+    volumes:
+      - neuro_node_data:/app/server/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+        reservations:
+          memory: 64M
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  neuro_node_data:
+    name: neuro_node_data

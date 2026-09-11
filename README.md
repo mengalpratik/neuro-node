@@ -138,12 +138,148 @@ Artifacts are output to `dist/` with full PWA shell caching.
 
 ---
 
+---
+
+## 🐳 Docker Deployment
+
+NEURO//NODE provides a production-ready, multi-stage Docker containerization optimized for low-resource cloud or home server environments (e.g. small Ubuntu VMs with ~1 GB RAM).
+
+> [!NOTE]
+> **No Node.js or npm required on host**: When deploying with Docker, the host VM does **NOT** need Node.js, npm, or build tools installed. Docker builds and runs the entire application in an isolated, minimal Alpine environment consuming only ~35–45 MB RAM.
+
+### 1. Prerequisites
+- **Docker Engine** (version 20.10+ or later)
+- **Docker Compose** (V2 plugin `docker compose` or standalone `docker-compose`)
+- Port `8787` available (or custom port configured in `.env`)
+
+### 2. Clone the Repository
+```bash
+git clone https://github.com/mengalpratik/neuro-node.git
+cd neuro-node
+```
+
+### 3. Environment Setup (Optional)
+Copy `.env.example` to `.env` if you wish to override default port or runtime settings:
+```bash
+cp .env.example .env
+```
+Default parameters in `.env.example`:
+- `PORT=8787`
+- `NODE_ENV=production`
+- `DATA_DIR=/app/server/data`
+- `STATIC_DIR=/app/dist`
+
+### 4. Build and Start
+Build the image and launch the container in detached mode:
+```bash
+docker compose up -d --build
+```
+This multi-stage build compiles TypeScript and packages the Vite frontend inside the builder container, then copies the production assets into a lightweight Node.js 20 Alpine runner container.
+
+### 5. Verify Health & Status
+Check running container status and health:
+```bash
+docker compose ps
+```
+Or query the health endpoint:
+```bash
+curl -i http://localhost:8787/health
+```
+
+### 6. View Logs
+Stream real-time server and WebSocket logs:
+```bash
+docker compose logs -f
+```
+
+### 7. Stopping the Service
+Stop the container gracefully:
+```bash
+docker compose down
+```
+
+### 8. Restarting the Service
+Restart the container:
+```bash
+docker compose restart
+```
+
+### 9. Updating to Latest Version
+Pull new changes and rebuild:
+```bash
+git pull origin main
+docker compose up -d --build
+```
+
+### 10. Persistent Data & Backups
+All paired device identities, synchronization groups, and operation logs are saved in the Docker named volume: `neuro_node_data`, mounted at `/app/server/data`.
+Data persists across container restarts, rebuilds, and `docker compose down`.
+
+To locate or inspect the volume:
+```bash
+docker volume inspect neuro_node_data
+```
+
+To backup the sync database from the container:
+```bash
+docker compose cp neuro-node:/app/server/data/sync_db.json ./backup_sync_db.json
+```
+
+### 11. Port Configuration
+By default, the unified server runs on port `8787` on all interfaces (`0.0.0.0:8787`).
+To change the host port, set `PORT=9000` in `.env`.
+
+### 12. Local Area Network (LAN) Access
+Access the dashboard from any phone, laptop, or tablet on your local network:
+```text
+http://<YOUR_SERVER_IP>:8787/
+```
+The frontend automatically detects the browser's origin (`window.location.origin`) and establishes REST and WebSocket (`ws://`) connections without manual IP configuration.
+
+### 13. HTTPS & Reverse Proxy Setup
+For public internet deployment or domain access with SSL (e.g. Caddy or Nginx), place a reverse proxy in front of port `8787`.
+
+**Caddy Example** (`Caddyfile`):
+```caddy
+neuro.example.com {
+    reverse_proxy 127.0.0.1:8787
+}
+```
+*Caddy automatically handles Let's Encrypt TLS certificates and WebSocket upgrades (`wss://`). The NEURO//NODE frontend automatically detects the `https:` protocol and switches WebSocket communication to `wss://`.*
+
+**Nginx Example**:
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name neuro.example.com;
+
+    ssl_certificate /etc/letsencrypt/live/neuro.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/neuro.example.com/privkey.pem;
+
+    location / {
+        proxy_pass http://127.0.0.1:8787;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+---
+
 ## ⚙️ Configuration
 
 | Variable | Description | Default |
 | :--- | :--- | :--- |
-| `PORT` | Sync Server listening port | `8787` |
-| `VITE_APP_ENV` | Environment identifier | `development` |
+| `PORT` | Server listening port | `8787` |
+| `HOST` | Server bind address | `0.0.0.0` |
+| `DATA_DIR` | Persistent data directory | `/app/server/data` |
+| `STATIC_DIR` | Static web build directory | `/app/dist` |
+| `NODE_ENV` | Environment identifier | `production` |
 
 Application preferences (theme, background style, weather coordinates, sync endpoints) are managed directly in the dashboard UI via the **Settings Drawer** (`Cmd/Ctrl + ,` or burger icon).
 
