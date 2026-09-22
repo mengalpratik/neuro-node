@@ -91,10 +91,24 @@ export class SyncEngine {
 
   // ==================== HTTP REST API ====================
 
+  public getDefaultServerUrl(): string {
+    const envUrl = (import.meta as any).env?.VITE_DEFAULT_SERVER_URL;
+    if (envUrl && typeof envUrl === 'string' && envUrl.trim()) {
+      return envUrl.trim();
+    }
+    if (typeof window !== 'undefined') {
+      if (window.location.origin.includes('github.io')) {
+        return 'http://92.4.73.160:8787';
+      }
+      return window.location.origin;
+    }
+    return 'http://localhost:8787';
+  }
+
   private resolveHttpUrl(serverUrl: string, endpoint: string): string {
     let base = serverUrl.trim();
     if (!base) {
-      base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8787';
+      base = this.getDefaultServerUrl();
     } else if (!/^https?:\/\//i.test(base)) {
       const defaultProtocol = typeof window !== 'undefined' ? window.location.protocol : 'http:';
       base = `${defaultProtocol}//${base}`;
@@ -341,7 +355,7 @@ export class SyncEngine {
     try {
       let base = serverUrl.trim();
       if (!base) {
-        base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8787';
+        base = this.getDefaultServerUrl();
       } else if (!/^https?:\/\//i.test(base) && !/^wss?:\/\//i.test(base)) {
         const defaultProtocol = typeof window !== 'undefined' ? window.location.protocol : 'http:';
         base = `${defaultProtocol}//${base}`;

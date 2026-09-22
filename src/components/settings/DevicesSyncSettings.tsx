@@ -49,8 +49,12 @@ export const DevicesSyncSettings: React.FC<DevicesSyncSettingsProps> = ({
   const [copiedId, setCopiedId] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Server URL config (defaults to current browser origin)
-  const defaultOrigin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8787';
+  // Server URL config (defaults to current browser origin or VM01 when on github.io)
+  const defaultOrigin =
+    (import.meta as any).env?.VITE_DEFAULT_SERVER_URL ||
+    (typeof window !== 'undefined' && !window.location.origin.includes('github.io')
+      ? window.location.origin
+      : 'http://92.4.73.160:8787');
   const [serverUrlInput, setServerUrlInput] = useState(sync.serverUrl || defaultOrigin);
   const [savedUrlMsg, setSavedUrlMsg] = useState(false);
 
