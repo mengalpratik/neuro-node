@@ -98,7 +98,7 @@ export class SyncEngine {
     }
     if (typeof window !== 'undefined') {
       if (window.location.origin.includes('github.io')) {
-        return 'http://92.4.73.160:8787';
+        return 'https://conf-citizen-reader-accurately.trycloudflare.com';
       }
       return window.location.origin;
     }

@@ -54,7 +54,7 @@ export const DevicesSyncSettings: React.FC<DevicesSyncSettingsProps> = ({
     (import.meta as any).env?.VITE_DEFAULT_SERVER_URL ||
     (typeof window !== 'undefined' && !window.location.origin.includes('github.io')
       ? window.location.origin
-      : 'http://92.4.73.160:8787');
+      : 'https://conf-citizen-reader-accurately.trycloudflare.com');
   const [serverUrlInput, setServerUrlInput] = useState(sync.serverUrl || defaultOrigin);
   const [savedUrlMsg, setSavedUrlMsg] = useState(false);
 
