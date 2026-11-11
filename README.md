@@ -4,6 +4,10 @@
 
 > A local-first personal dashboard designed to act as a private, customizable command center for bookmarks, calendar information, weather, personal tasks, and multi-device synchronization.
 
+<p align="left">
+  <a href="https://buymeacoffee.com/pratikmengal" target="_blank"><img src="https://img.shields.io/badge/Buy_Me_A_Coffee-Support-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee"></a>
+</p>
+
 ---
 
 ## ⚡ Overview
@@ -298,3 +302,11 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete ter
 - **Author**: Pratik Mengal (Neuro)
 - **GitHub**: [mengalpratik](https://github.com/mengalpratik)
 - **Email**: [iampratikmengal@gmail.com](mailto:iampratikmengal@gmail.com)
+- **Sponsor**: [buymeacoffee.com/pratikmengal](https://buymeacoffee.com/pratikmengal)
+
+<p align="left">
+  <br/>
+  <a href="https://buymeacoffee.com/pratikmengal" target="_blank">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="42" style="border-radius: 8px;">
+  </a>
+</p>
