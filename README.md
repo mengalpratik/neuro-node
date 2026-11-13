@@ -6,6 +6,7 @@
 
 <p align="left">
   <a href="https://buymeacoffee.com/pratikmengal" target="_blank"><img src="https://img.shields.io/badge/Buy_Me_A_Coffee-Support-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee"></a>
+  <a href="upi://pay?pa=iampratikmengal-2@okaxis&pn=Pratik%20Mengal&cu=INR"><img src="https://img.shields.io/badge/UPI-iampratikmengal--2%40okaxis-008080?style=flat-square&logo=google-pay&logoColor=white" alt="Pay via UPI"></a>
 </p>
 
 ---
@@ -303,10 +304,22 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for complete ter
 - **GitHub**: [mengalpratik](https://github.com/mengalpratik)
 - **Email**: [iampratikmengal@gmail.com](mailto:iampratikmengal@gmail.com)
 - **Sponsor**: [buymeacoffee.com/pratikmengal](https://buymeacoffee.com/pratikmengal)
+- **UPI ID**: 
 
 <p align="left">
   <br/>
   <a href="https://buymeacoffee.com/pratikmengal" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="42" style="border-radius: 8px;">
   </a>
+  &nbsp;&nbsp;
+  <a href="upi://pay?pa=iampratikmengal-2@okaxis&pn=Pratik%20Mengal&cu=INR">
+    <img src="https://img.shields.io/badge/UPI-iampratikmengal--2%40okaxis-008080?style=for-the-badge&logo=google-pay&logoColor=white" height="38" alt="Pay via UPI" />
+  </a>
 </p>
+
+<details>
+  <summary><b>🇮🇳 Scan to Pay via UPI (GPay / PhonePe / Paytm / BHIM)</b></summary>
+  <br/>
+  <img src="https://raw.githubusercontent.com/mengalpratik/mengalpratik/main/assets/upi-qr.png" alt="Pratik Mengal UPI QR Code" width="220" style="border-radius: 12px; border: 1px solid rgba(128,128,128,0.2);" />
+  <p><code>iampratikmengal-2@okaxis</code></p>
+</details>
